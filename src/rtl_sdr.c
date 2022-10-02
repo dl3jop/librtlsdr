@@ -145,7 +145,7 @@ static void rtlsdr_callback(unsigned char *buf, uint32_t len, void *ctx)
 			sscanf(command_buff, "%lu", &input_freq);
 			if(input_freq > 28000000 && input_freq < 2000000000){
 				fprintf(stderr, "tuned freq to: %lu", input_freq);
-				verbose_set_frequency(dev, 120000000);
+				verbose_set_frequency(dev, input_freq);
 			}
 			
 		}
