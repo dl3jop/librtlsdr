@@ -136,7 +136,14 @@ static void rtlsdr_callback(unsigned char *buf, uint32_t len, void *ctx)
 				rtlsdr_cancel_async(dev);
 			}
 		}
-				
+		
+		/*  Testing information:
+		 *  retuning from stdio:
+		 *  1) start ./rtl_sdr -s 2400000 -f 145500000 -g 20 - >> /dev/null
+		 *  2) only valid inputs like f145000000 are passed from stdin to verbose_set_frequency()
+		 *  3) retuning currently fails with:
+		 *  rtlsdr_demod_write_reg failed with -6
+		 */	
 		stdioread = read(0, command_buff, 20);
 		//fprintf(stderr, "Read: %s" , command_buff);
 		if(command_buff[0]=='f'){
@@ -150,6 +157,7 @@ static void rtlsdr_callback(unsigned char *buf, uint32_t len, void *ctx)
 			
 		}
 		memset(&command_buff[0], 0, sizeof(command_buff));
+		
 		
 	
 		
