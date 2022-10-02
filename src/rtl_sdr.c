@@ -48,6 +48,11 @@ static int do_exit = 0;
 static uint32_t iq_frames_to_read = 0;
 static rtlsdr_dev_t *dev = NULL;
 
+int stdin_chr;
+char command_buff[20];
+uint64_t input_freq;
+ssize_t stdioread;
+
 void usage(void)
 {
 	fprintf(stderr,
@@ -131,6 +136,23 @@ static void rtlsdr_callback(unsigned char *buf, uint32_t len, void *ctx)
 				rtlsdr_cancel_async(dev);
 			}
 		}
+				
+		stdioread = read(0, command_buff, 20);
+		//fprintf(stderr, "Read: %s" , command_buff);
+		if(command_buff[0]=='f'){
+			memmove( &command_buff[0] , &command_buff[1], strlen(command_buff) - 1) ;
+			//fprintf(stderr, "Read cut: %s" , command_buff);
+			sscanf(command_buff, "%lu", &input_freq);
+			if(input_freq > 28000000 && input_freq < 2000000000){
+				fprintf(stderr, "tuned freq to: %lu", input_freq);
+				verbose_set_frequency(dev, 120000000);
+			}
+			
+		}
+		memset(&command_buff[0], 0, sizeof(command_buff));
+		
+	
+		
 	}
 }
 
@@ -158,6 +180,7 @@ int main(int argc, char **argv)
 	uint32_t samp_rate = DEFAULT_SAMPLE_RATE;
 	uint32_t out_block_size = DEFAULT_BUF_LENGTH;
 	int verbosity = 0;
+
 
 	while ((opt = getopt(argc, argv, "d:f:g:s:w:b:n:p:O:SNHv")) != -1) {
 		switch (opt) {
@@ -350,6 +373,7 @@ int main(int argc, char **argv)
 				else
 					do_exit = 1;
 			}
+			
 		}
 	} else {
 		fprintf(stderr, "Reading samples in async mode...\n");
